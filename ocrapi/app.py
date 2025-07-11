@@ -3,27 +3,27 @@ from flask_cors import CORS
 from PIL import Image
 import pytesseract
 import os
+
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-# Optional: specify the path to tesseract executable
-
+# Use the env variable set in Dockerfile
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', 'tesseract')
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
     if 'image' not in request.files:
         return jsonify({'error': 'No image file provided'}), 400
-    
-    image_file = request.files['image']
-    image = Image.open(image_file.stream)
 
     try:
+        image_file = request.files['image']
+        image = Image.open(image_file.stream)
         text = pytesseract.image_to_string(image)
         return jsonify({'text': text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Render binds to PORT env var (default 10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
