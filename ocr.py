@@ -1,14 +1,23 @@
+from flask import Flask, request, jsonify
 from PIL import Image
 import pytesseract
+import os
 
-# Optional: specify tesseract path if not in environment variables
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+# Optional: Tesseract path (adjust only if needed)
+pytesseract.pytesseract.tesseract_cmd = r'/app/.apt/usr/bin/tesseract' if 'DYNO' in os.environ else r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
-# Load the image
-image = Image.open('image.png')  # replace with your image file
+app = Flask(__name__)
 
-# Extract text
-text = pytesseract.image_to_string(image)
+@app.route('/ocr', methods=['POST'])
+def ocr_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
 
-# Print the result
-print("Extracted Text:\n", text)
+    file = request.files['image']
+    image = Image.open(file.stream)
+    text = pytesseract.image_to_string(image)
+
+    return jsonify({'text': text})
+
+if __name__ == '__main__':
+    app.run(debug=True)

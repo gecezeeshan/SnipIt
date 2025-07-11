@@ -2,13 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image
 import pytesseract
-import io
-
+import os
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Optional: specify the path to tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+
+pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
