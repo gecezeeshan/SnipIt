@@ -12,8 +12,7 @@ try:
 except Exception as e:
     print("🔴 Could not find tesseract:", str(e))
 
-# Set the command manually to be sure
-pytesseract.pytesseract.tesseract_cmd = which_out.strip()
+
 
 app = Flask(__name__)
 CORS(app)
