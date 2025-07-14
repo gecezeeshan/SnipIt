@@ -36,6 +36,16 @@ def extract_text():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/check-tesseract', methods=['GET'])
+def check_tesseract():
+    import subprocess
+    try:
+        path = subprocess.check_output(['which', 'tesseract']).decode().strip()
+        version = subprocess.check_output([path, '--version']).decode().strip()
+        return jsonify({'path': path, 'version': version})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     # Render binds to PORT env var (default 10000)
     port = int(os.environ.get("PORT", 10000))
