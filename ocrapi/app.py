@@ -21,7 +21,9 @@ CORS(app)
 #pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', 'tesseract')
 pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
-
+@app.route('/health')
+def health():
+    return 'OK', 200
 
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
