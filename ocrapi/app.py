@@ -3,12 +3,26 @@ from flask_cors import CORS
 from PIL import Image
 import pytesseract
 import os
+import subprocess
+
+
+try:
+    which_out = subprocess.check_output(['which', 'tesseract']).decode()
+    print("🟢 Found tesseract at:", which_out)
+except Exception as e:
+    print("🔴 Could not find tesseract:", str(e))
+
+# Set the command manually to be sure
+pytesseract.pytesseract.tesseract_cmd = which_out.strip()
 
 app = Flask(__name__)
 CORS(app)
 
 # Use the env variable set in Dockerfile
-pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', 'tesseract')
+#pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', 'tesseract')
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+
+
 
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
