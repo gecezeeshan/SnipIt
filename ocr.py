@@ -4,7 +4,7 @@ import pytesseract
 import os
 
 # Optional: Tesseract path (adjust only if needed)
-pytesseract.pytesseract.tesseract_cmd = r'/app/.apt/usr/bin/tesseract' if 'DYNO' in os.environ else r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\zeeshan.ali\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 app = Flask(__name__)
 
