@@ -1,3 +1,4 @@
+import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image
@@ -32,7 +33,7 @@ def extract_text():
         return jsonify({'error': 'No image file provided'}), 400
 
     try:
-
+        start_time = time.time()
         image_file = request.files['image']
         file_bytes = np.frombuffer(image_file.read(), np.uint8)
         cv_image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
@@ -43,11 +44,14 @@ def extract_text():
         gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
         pil_image = Image.fromarray(thresh)
+        
+        raw_text = pytesseract.image_to_string(pil_image)
+        text = ' '.join(raw_text.split())
 
-        text = pytesseract.image_to_string(pil_image)
-
+        end_time = time.time()
         return jsonify({
-            'text': text
+            'text': text,
+            'time_taken': round(end_time - start_time, 2)
         })
 
     except Exception as e:
