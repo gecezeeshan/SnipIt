@@ -32,21 +32,24 @@ def extract_text():
         return jsonify({'error': 'No image file provided'}), 400
 
     try:
+
         image_file = request.files['image']
+        file_bytes = np.frombuffer(image_file.read(), np.uint8)
+        cv_image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-        image = Image.open(image_file.stream).convert('L')  # grayscale
-        image = image.resize((image.width // 2, image.height // 2))  # optional resize
+        if cv_image is None:
+            return jsonify({'error': 'Could not decode image'}), 400
 
-        # OR preprocess with OpenCV for better results:
-        # Convert PIL to OpenCV image
-        cv_image = cv2.imdecode(np.frombuffer(image_file.read(), np.uint8), cv2.IMREAD_COLOR)
         gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-        image = Image.fromarray(thresh)
+        pil_image = Image.fromarray(thresh)
 
-        #text = pytesseract.image_to_string(image)
-        text = pytesseract.image_to_string(image, config='--psm 6')
-        return jsonify({'text': text})
+        text = pytesseract.image_to_string(pil_image)
+
+        return jsonify({
+            'text': text
+        })
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
