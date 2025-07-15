@@ -4,7 +4,8 @@ from PIL import Image
 import pytesseract
 import os
 import subprocess
-
+import cv2
+import numpy as np
 
 try:
     which_out = subprocess.check_output(['which', 'tesseract']).decode()
@@ -32,8 +33,19 @@ def extract_text():
 
     try:
         image_file = request.files['image']
-        image = Image.open(image_file.stream)
-        text = pytesseract.image_to_string(image)
+
+        image = Image.open(image_file.stream).convert('L')  # grayscale
+        image = image.resize((image.width // 2, image.height // 2))  # optional resize
+
+        # OR preprocess with OpenCV for better results:
+        # Convert PIL to OpenCV image
+        cv_image = cv2.imdecode(np.frombuffer(image_file.read(), np.uint8), cv2.IMREAD_COLOR)
+        gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+        image = Image.fromarray(thresh)
+
+        #text = pytesseract.image_to_string(image)
+        text = pytesseract.image_to_string(image, config='--psm 6')
         return jsonify({'text': text})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
